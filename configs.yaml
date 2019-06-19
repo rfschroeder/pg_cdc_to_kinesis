@@ -1,0 +1,13 @@
+databases:
+  - db_teste: &db_teste
+      host: mydatabasehost
+      user: postgres
+      password: ******
+      db_name: db_teste
+
+
+replication_slots:
+    - company_slot:
+        <<: *db_teste
+        options: {'include-timestamp': True, add-tables': 'public.*', 'include-lsn': True}
+        kns_stream: 'my-kinesis-data-stream'
