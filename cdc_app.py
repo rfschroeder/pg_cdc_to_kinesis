@@ -17,7 +17,6 @@ class CDCApp(Thread):
         super(CDCApp, self).__init__()
         self.kns_data_sender = kns_data_sender
         self.slot_replication = slot_replication
-        self.last_stream_value = ''
 
     def _consume_stream(self, data):
         payload = json.loads(data.payload)
