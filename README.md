@@ -1,5 +1,5 @@
 # pg_cdc_to_kinesis
-A Python project stream CDC (Change Data Capture) events from a PostgreSQL databases to a Kinesis Data Stream through wal2json plugin.
+A Python project stream CDC (Change Data Capture) events from a PostgreSQL databases to a AWS Kinesis Data Stream through wal2json plugin.
 
 Requirements PostgreSQL parameters:
 
