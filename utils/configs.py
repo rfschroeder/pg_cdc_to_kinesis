@@ -8,7 +8,9 @@ def _load_config_file():
             config_file = yaml.safe_load(db_configs)
     except yaml.YAMLError as exc:
         logging.error('Error when reading file configs.yaml')
-    return config_file
+        config_file = None
+    finally:
+        return config_file
 
 
 class CDCConfigs:

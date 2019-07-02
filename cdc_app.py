@@ -7,7 +7,7 @@ from threading import Thread
 
 from utils import CDCConfigs
 from kinesis import KinesisDataSender
-from postgre import SlotReplication
+from postgres import SlotReplication
 
 
 # Background class to each replication slot in configs.yaml

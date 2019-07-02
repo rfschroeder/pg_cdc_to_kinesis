@@ -9,5 +9,5 @@ databases:
 replication_slots:
     - company_slot:
         <<: *db_teste
-        options: {'include-timestamp': True, add-tables': 'public.*', 'include-lsn': True}
+        options: {'include-timestamp': True, 'add-tables': 'public.*', 'include-lsn': True}
         kns_stream: 'my-kinesis-data-stream'

@@ -33,12 +33,12 @@ def get_file_content(f, write=False):
 
 def _get_last_lsn(slot_name):
     try:
-        with open('./postgre/lsns/{}.txt'.format(slot_name), 'r+') as f:
+        with open('./postgres/lsns/{}.txt'.format(slot_name), 'r+') as f:
             return get_file_content(f)
     except FileNotFoundError as e:
         logging.info(e)
 
-        with open('./postgre/lsns/{}.txt'.format(slot_name), 'w+') as f:
+        with open('./postgres/lsns/{}.txt'.format(slot_name), 'w+') as f:
             return get_file_content(f, True)
 
 
@@ -68,7 +68,7 @@ class SlotReplication(object):
 
     def increment_lsn(self, next_lsn):
         try:
-            with open('./postgre/lsns/{}.txt'.format(self.slot_name), 'w+') as f:
+            with open('./postgres/lsns/{}.txt'.format(self.slot_name), 'w+') as f:
                 f.seek(0)
                 f.write(next_lsn)
         except EnvironmentError as e:
