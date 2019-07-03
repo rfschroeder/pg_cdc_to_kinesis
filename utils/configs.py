@@ -4,10 +4,10 @@ import logging
 
 def _load_config_file():
     try:
-        with open('./configs.yaml', 'r') as db_configs:
+        with open('./configs.yml', 'r') as db_configs:
             config_file = yaml.safe_load(db_configs)
     except yaml.YAMLError as exc:
-        logging.error('Error when reading file configs.yaml')
+        logging.error('Error when reading file configs.yml')
         config_file = None
     finally:
         return config_file

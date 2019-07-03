@@ -42,6 +42,9 @@ def _get_last_lsn(slot_name):
             return get_file_content(f, True)
 
 
+'''
+    Represents slots replication data
+'''
 class SlotReplication(object):
     def __init__(self, slot_name, db_name, host, user, password, options=None):
         self.slot_name = slot_name
@@ -75,8 +78,11 @@ class SlotReplication(object):
             logging.error('Error on writting lsn to file: {}'.format(str(e)))
             traceback.print_exc()
 
-    def get_name(self):
+    def get_slot_name(self):
         return self.slot_name
+
+    def get_db_name(self):
+        return self.db_name
 
     def start_stream(self, consumer_listener):
         if self.db_cursor:

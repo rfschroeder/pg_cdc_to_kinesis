@@ -4,7 +4,21 @@ import time
 
 import boto3
 
+from utils import StructureCDCData
 
+
+def chunk_list(l, n):
+    lst = list()
+    for i in range(0, len(l), n):
+        chunk = l[i:i + n]
+        lst.append([{'Data': json.dumps(c), 'PartitionKey': 'default'} for c in chunk])
+
+    return lst
+
+
+'''
+    Send data to Kinesis Data Stream 
+'''
 class KinesisDataSender(object):
     def __init__(self, stream_name, slot_replication, interval=0.5):
         self.kns_client = boto3.client('kinesis', region_name='us-east-1')
@@ -21,33 +35,41 @@ class KinesisDataSender(object):
         self.data_queue.append(data)
 
     def _send_to_kinesis(self):
-
-        data_queue = self.data_queue
-
-        for i, data in enumerate(data_queue):
+        
+        # Each data of queue can contains lots of db change capture data
+        for i, data in enumerate(self.data_queue):
             payload = json.loads(data.payload)
+
+            data_kns_list = list()
 
             if payload.get('change'):
 
                 payload = json.loads(data.payload)
 
-                kns_fail = False
-
                 for i, change in enumerate(payload.get('change')):
-                    print('\r' + '[{}] Sending to Kinesis: {} of {} changes. (Queue length: {})'.format(
-                        self.slot_replication.get_name(), i + 1, len(payload.get('change')), len(self.data_queue)))
+                    structured_data = StructureCDCData(self.slot_replication.get_db_name(), payload, change)
+                    
+                    data_kns_list.append(structured_data.get_structured_data())
 
-                    kns_res = self.kns_client.put_record(
-                        StreamName=self.stream_name,
-                        Data=json.dumps(change),
-                        PartitionKey="default"
-                    )
-
-                    if not kns_res.get('ResponseMetadata') or (
-                            kns_res.get('ResponseMetadata') and kns_res.get('ResponseMetadata').get(
-                            'HTTPStatusCode') != 200):
-                        kns_fail = True
-
+            kns_chunks = chunk_list(data_kns_list, 500) # 500 is the number of kinesis put_records Records limit size
+            
+            for i, chunk in enumerate(kns_chunks):
+    
+                print('\r' + '[{}] Sending changes to Kinesis: {} of {} chunks. (Queue length: {})'.format(
+                    self.slot_replication.get_slot_name(), i + 1, len(kns_chunks), len(self.data_queue)))
+    
+                kns_fail = False
+    
+                kns_res = self.kns_client.put_records(
+                    StreamName=self.stream_name,
+                    Records=chunk
+                )
+    
+                if not kns_res.get('ResponseMetadata') or (
+                        kns_res.get('ResponseMetadata') and kns_res.get('ResponseMetadata').get(
+                    'HTTPStatusCode') != 200):
+                    kns_fail = True
+        
                 if not kns_fail:
                     data.cursor.send_feedback(flush_lsn=data.data_start)
                     self.slot_replication.increment_lsn(payload.get('nextlsn'))
@@ -60,7 +82,7 @@ class KinesisDataSender(object):
         """ Method that runs forever in background """
         while True:
             # Check queue length and start sending data to Kinesis
-            print('\r' + '[[{}] No changes to process. (Queue length: {})'.format(self.slot_replication.get_name(),
+            print('\r' + '[[{}] No changes to process. (Queue length: {})'.format(self.slot_replication.get_slot_name(),
                                                                                  str(len(self.data_queue))))
 
             if len(self.data_queue) > 0:

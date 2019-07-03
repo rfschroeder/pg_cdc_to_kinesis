@@ -9,8 +9,9 @@ from utils import CDCConfigs
 from kinesis import KinesisDataSender
 from postgres import SlotReplication
 
-
-# Background class to each replication slot in configs.yaml
+'''
+    Represents each CDC replication slot app
+'''
 class CDCApp(Thread):
 
     def __init__(self, kns_data_sender, slot_replication):
@@ -43,8 +44,7 @@ def main():
     replication_slots = CDCConfigs.get_config('replication_slots')
 
     for slot in replication_slots:
-
-        slot_name = [key for key in slot][0] # Get slot name of replication instance on configs.yaml
+        slot_name = [key for key in slot][0] # Get slot name of replication instance on configs.yml
 
         slot_replication = SlotReplication(
             slot_name=slot_name,
