@@ -1,3 +1,2 @@
-# exclude everything except directory foo/bar
 .idea/
 */__pycache__/*
