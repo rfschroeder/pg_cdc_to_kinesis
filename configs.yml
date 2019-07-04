@@ -1,13 +1,17 @@
 databases:
   - db_teste: &db_teste
-      host: mydatabasehost
+      host: 'cnpj.c2m9cx15lcdx.us-east-1.rds.amazonaws.com'
       user: postgres
-      password: ******
-      db_name: db_teste
+      password: c0nt44zul
+      db_name: cnpj
 
 
 replication_slots:
     - company_slot:
         <<: *db_teste
         options: {'include-timestamp': True, 'add-tables': 'public.*', 'include-lsn': True}
-        kns_stream: 'my-kinesis-data-stream'
+        kns_stream: 'rds-cnpj-cdc'
+    - test_slot:
+        <<: *db_teste
+        options: {'include-timestamp': True, 'add-tables': 'public.*', 'include-lsn': True}
+        kns_stream: 'rds-cnpj-cdc'
